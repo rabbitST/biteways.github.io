@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>B i t e W a y s</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="css/BiteWays.css">
+</head>
+<body>
+
+<div class="container" id="app">
+    <div style="width: 100%; text-align: center;position: relative" class="bg-secondary">
+        <a class="navbar-brand" href="index.html"><i class="fas fa-utensils"></i> BiteWays API</a>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
+            <div class="collapse navbar-collapse " id="navbarNav">
+                <ul class="navbar-nav  d-inline-flex">
+                    <li class="nav-item">
+                        <a class="nav-link" href="Menu.html">
+                            <i class="fas fa-table"></i> Menus
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="Recipe.html">
+                            <i class="fas fa-utensils"></i> Recipes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="Ingredient.html">
+                            <i class="fas fa-carrot"></i> Ingredients
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="add-menu.html">
+                            <i class="fas fa-plus-circle"></i> Add Menu
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="add-recipe.html">
+                            <i class="fas fa-plus-circle"></i> Add Recipe
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="add-ingredient.html">
+                            <i class="fas fa-plus-circle"></i> Add Ingredient
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <div class="row justify-content-center mt-2">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="m-0">Recipes</h3>
+                    <button @click="editRecipe(recipe.id)" class="btn btn-outline-info">
+                        <i class="fas fa-pencil-alt"></i> Edit Recipe
+                    </button>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <tbody>
+                        <tr>
+                            <th>ID:</th>
+                            <td>{{ recipe.id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Name:</th>
+                            <td>{{ recipe.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Ingredients:</th>
+                            <td>
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Quantity</th>
+                                        <th>Unit Type</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr v-for="ingredient in ingredientList" :key="ingredient.id">
+                                        <td>{{ ingredient.id }}</td>
+                                        <td>{{ ingredient.name }}</td>
+                                        <td>{{ ingredient.quantity }}</td>
+                                        <td>{{ ingredient.unitType }}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Instructions:</th>
+                            <td v-html="recipe.instructions ? recipe.instructions.replace(/(?:\r\n|\r|\n)/g, '<br>') : ''"></td>
+
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+
+<script>
+    // Create a Vue instance
+    new Vue({
+        el: '#app',
+        data: {
+            recipe: {},
+            ingredientList: []
+        },
+        mounted() {
+            this.fetchData();
+        },
+        methods: {
+            fetchData() {
+                const getQueryString = () => {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    return Object.fromEntries(urlParams.entries());
+                }
+
+                const id = getQueryString().id;
+                fetch(`http://localhost:8080/api/biteways/recipe/${id}`, {
+                    method: 'GET',
+                    headers: {}
+                })
+                    .then(response => {
+                        response.json().then(res => {
+                            this.recipe = res;
+                            this.$set(this, 'ingredientList', res.ingredientList);
+                        });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    });
+            },
+            editRecipe(id) {
+                window.location.href = `update-recipe.html?id=${id}`;
+            }
+        }
+    });
+</script>
+</body>
+</html>

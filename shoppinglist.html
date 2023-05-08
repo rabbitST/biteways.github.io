@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>B i t e W a y s</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="css/BiteWays.css">
+</head>
+<body>
+
+<div class="container" id="app">
+    <div style="width: 100%; text-align: center;position: relative" class="bg-secondary">
+        <a class="navbar-brand" href="index.html"><i class="fas fa-utensils"></i> BiteWays API</a>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
+            <div class="collapse navbar-collapse " id="navbarNav">
+                <ul class="navbar-nav  d-inline-flex">
+                    <li class="nav-item">
+                        <a class="nav-link" href="Menu.html">
+                            <i class="fas fa-table"></i> Menus
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="Recipe.html">
+                            <i class="fas fa-utensils"></i> Recipes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="Ingredient.html">
+                            <i class="fas fa-carrot"></i> Ingredients
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="add-menu.html">
+                            <i class="fas fa-plus-circle"></i> Add Menu
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="add-recipe.html">
+                            <i class="fas fa-plus-circle"></i> Add Recipe
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="add-ingredient.html">
+                            <i class="fas fa-plus-circle"></i> Add Ingredient
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+    <div class="row justify-content-center mt-2">
+        <div class="col-md-8">
+            <div class="d-flex bg-light text-center">
+                <h1 class="h3 mb-0 mx-auto">Shopping list for {{ menuName }}</h1>
+            </div>
+            <div class="d-flex justify-content-between my-3">
+                <button @click="backToMenu()" class="btn btn-outline-secondary"><i class="fas fa-chevron-left"></i> Back</button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="(shoppingItem, index) in shoppingItems" :key="index">
+                        <td>{{ shoppingItem.itemName }}</td>
+                        <td>{{ shoppingItem.quantity }}</td>
+                        <td>{{ shoppingItem.unitType }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            shoppingItems: [],
+            shoppingItem: {},
+            menuName: '',
+            menuId:'0'
+        },
+        mounted() {
+            this.fetchData();
+        },
+        methods: {
+            fetchData() {
+                const getQueryString = () => {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    return Object.fromEntries(urlParams.entries());
+                }
+
+                this.menuId = getQueryString().id;
+                fetch(`http://localhost:8080/api/biteways/menu/shoppinglist/${this.menuId}`, {
+                    method: 'GET',
+                    headers: {}
+                })
+                    .then(response => {
+                        response.json().then(res => {
+                            this.shoppingItems = res;
+                        });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    });
+                fetch(`http://localhost:8080/api/biteways/menu/${this.menuId}`, {
+                    method: 'GET',
+                    headers: {}
+                })
+                    .then(response => {
+                        response.json().then(res => {
+                            this.menuName = res.name;
+                        });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                    });
+            },
+            backToMenu(){
+                window.location.href=`menu-details.html?id=${this.menuId}`;
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
